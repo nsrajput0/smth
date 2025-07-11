@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body{
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .lock-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            display: none;
+        }
+        .content{
+            background: linear-gradient(135deg, #dbeafe, #fce7f3);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            display: none;
+            margin: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .lock-container{
+            display: block;
+            animation: fadeIn 0.5s ease forwards;
+        }
+        @keyframes fadeIn{
+            from{opacity: 0;transform: scale(0.9);}
+            to{opacity: 1;transform: scale(01);}
+        }
+        @keyframes fadeOut {
+            from{opacity: 1;transform: scale(01);}
+            to{opacity: 0;transform: scale(0.9);}
+        }
+        .fade-out{
+            animation: fadeOut 0.5s ease forwards;
+        }
+        input[type="password"]{
+            padding: 12px;
+            width: 220px;
+            font-size: 24px;
+            text-align: center;
+            border: 2px solid #64b5f6;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            letter-spacing: 8px;
+            background-color: #e3f2fd;
+        }
+        .keypad{
+            display: grid;
+            grid-template-columns: repeat(3, 70px);
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        .keypad button{
+            padding: 18px;
+            font-size: 20px;
+            border: none;
+            border-radius: 12px;
+            background: #2196f2;
+            color: white;
+            cursor: pointer;
+            box-shadow:  0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, background 0.3s;
+        }
+        .error{
+            color: red;
+            min-height: 24px;
+            font-size: 14px;
+        }
+        .hint{
+            margin-top: 10px;
+            color: #555;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+    </style>
+</head>
+<body>
+    <div class="lock-container" id="lockScreen">
+        <h2>Enter 4 digit pin</h2>
+        <input type="password" id="passwordInput" readonly placeholder="____" maxlength="4">
+        <div class="keypad">
+            <button onclick="press('1')">1</button>
+            <button onclick="press('2')">2</button>
+            <button onclick="press('3')">3</button>
+            <button onclick="press('4')">4</button>
+            <button onclick="press('5')">5</button>
+            <button onclick="press('6')">6</button>
+            <button onclick="press('7')">7</button>
+            <button onclick="press('8')">8</button>
+            <button onclick="press('9')">9</button>
+            <button onclick="deleteDigit()">IJ</button>
+            <button onclick="press('0')">0</button>
+            <button onclick="checkPassword()">C</button>
+        </div>
+        <div class="error" id="errorMessage"></div>
+        <div class="hint" onclick="showHint()">Forgot PIN?</div>
+    </div>
+    <div class="content" id="unlockedContent" style="display: none;">
+        <p>Hey!</p>
+        <p>I don't know how to say this perfectly, but i still care... <br> I'm not here to bring up the past or blame anyone. I dont need answers, and i dont want to talk about what went wrong. i just miss you, your presence, your smile, the peace you brought me. I'm not asking for anything except this: if your heart still remembers what we had, come back...</p>
+        <p>Thats all I need - just you...</p>
+        <br>
+        <p>Waiting...</p>
+        <form action="https://formspree.io/f/moqgozpk" method="post">
+            <textarea name="message" id="" placeholder="something for me"></textarea>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+
+
+    <script>
+        const correctPassword = "1808";
+        let attempts = 0;
+        const maxAttempts = 3;
+        const lockDuration = 30;
+        let lockedUntil = 0;
+
+        function press(num){
+            const now = Date.now();
+            if(now < lockedUntil)return;
+            
+            const input = document.getElementById("passwordInput");
+                if(input.value.length < 4){
+                    input.value += num;
+                    document.getElementById("errorMessage").textContent = "";
+                }
+        }
+            function deleteDigit(){
+                const input = document.getElementById("passwordInput");
+                input.value = input.value.slice(0, -1);
+                document.getElementById("errorMessage").textContent = "";
+            }
+            function checkPassword(){
+                const input = document.getElementById("passwordInput");
+                const error = document.getElementById("errorMessage");
+                const now = Date.now();
+
+                if(now < lockedUntil){
+                    error.textContent = `Locked try after ${Math.ceil((lockedUntil-now)/1000)}s`;
+                    return;
+                }
+                if(input.value === correctPassword){
+                    const lockScreen = document.getElementById("lockScreen");
+                    lockScreen.classList.add("fade-out");
+
+                    setTimeout(() =>{
+                        lockScreen.style.display = "none";
+                        document.getElementById("unlockedContent").style.display = "block";
+                    },500);
+                }else{
+                    attempts++;
+                    if(attempts >= maxAttempts){
+                        lockedUntil = Date.now() + lockDuration*1000;
+                        error.textContent = `too many attempts ${lockDuration}s`;
+                    }else{
+                        error.textContent = `wrong PIN (${attempts}/${maxAttempts})`;
+                    }
+                }
+                input.value="";
+            }
+            function showHint(){
+                alert("the date we meet");
+            }
+        
+    </script>
+</body>
+</html>
