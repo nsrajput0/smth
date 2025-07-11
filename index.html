@@ -106,9 +106,9 @@
             <button onclick="press('7')">7</button>
             <button onclick="press('8')">8</button>
             <button onclick="press('9')">9</button>
-            <button onclick="deleteDigit()">IJ</button>
+            <button onclick="deleteDigit()">⬅</button>
             <button onclick="press('0')">0</button>
-            <button onclick="checkPassword()">C</button>
+            <button onclick="checkPassword()">Go</button>
         </div>
         <div class="error" id="errorMessage"></div>
         <div class="hint" onclick="showHint()">Forgot PIN?</div>
@@ -128,7 +128,7 @@
 
 
     <script>
-        const correctPassword = "1808";
+        const correctPassword = "1601";
         let attempts = 0;
         const maxAttempts = 3;
         const lockDuration = 30;
